@@ -48,17 +48,7 @@ class MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.tableWidget = QtWidgets.QTableWidget(self.verticalLayoutWidget)
         self.tableWidget.setMinimumSize(QtCore.QSize(570, 0))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(0, 157, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 157, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 157, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
-        self.tableWidget.setPalette(palette)
+
         font = QtGui.QFont()
         font.setPointSize(8)
         self.tableWidget.setFont(font)
@@ -104,9 +94,9 @@ class MainWindow(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setContentsMargins(-1, 10, -1, 10)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.deleteAllParcelsButton_2 = QtWidgets.QPushButton(self.verticalLayoutWidget)
-        self.deleteAllParcelsButton_2.setObjectName("deleteAllParcelsButton_2")
-        self.horizontalLayout_2.addWidget(self.deleteAllParcelsButton_2)
+        self.select_all_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.select_all_button.setObjectName("select_all_button")
+        self.horizontalLayout_2.addWidget(self.select_all_button)
         self.deleteAllParcelsButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.deleteAllParcelsButton.setObjectName("deleteAllParcelsButton")
         self.horizontalLayout_2.addWidget(self.deleteAllParcelsButton)
@@ -117,13 +107,9 @@ class MainWindow(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem1)
         self.sendParcelsButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.sendParcelsButton.setMinimumSize(QtCore.QSize(0, 50))
-        self.sendParcelsButton.setMaximumSize(QtCore.QSize(300, 16777215))
+        self.sendParcelsButton.setMaximumSize(QtCore.QSize(350, 16777215))
         self.sendParcelsButton.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.sendParcelsButton.setAutoFillBackground(True)
         self.sendParcelsButton.setFlat(False)
@@ -177,7 +163,7 @@ class MainWindow(object):
         item.setText(_translate("MainWindow", "Nr dok. Optima"))
         item = self.tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Nazwa"))
-        self.deleteAllParcelsButton_2.setText(_translate("MainWindow", "Zaznacz wszystkie"))
+        self.select_all_button.setText(_translate("MainWindow", "Zaznacz wszystkie"))
         self.deleteAllParcelsButton.setText(_translate("MainWindow", "Usuń wszystkie"))
         self.deleteSelectedParcelsButton.setText(_translate("MainWindow", "Usuń zaznaczone"))
         self.sendParcelsButton.setText(_translate("MainWindow", "Wyślij..."))
@@ -225,11 +211,13 @@ class MainWindow(object):
         excel_df = pandas.read_excel(path,
                                      usecols=['Nr listu przewozowego', 'Opis', 'Numer dokumentu', 'Kontrahent'])
         data = excel_df.to_dict(orient='record')
-        if data:
-            data.pop()
-            for dictionary in data:
+        data_clear = [x for x in data if str(x.get('Nr listu przewozowego')) != 'nan']
+
+        if data_clear:
+            for dictionary in data_clear:
                 opis = str(dictionary.get('Opis'))
                 nr_listu = str(dictionary.get('Nr listu przewozowego'))
+
                 import re
                 regex_zamowienie = re.compile(r'Zam.wienie.(\d{5})$|(\d{5})$')
                 regex_nr_listu = re.compile(r'(\d+\w)')
@@ -243,7 +231,7 @@ class MainWindow(object):
                 if numer_listu_results:
                     dictionary['Nr listu przewozowego'] = numer_listu_results[-1]
 
-            return data
+            return data_clear
         else:
             return None
 
