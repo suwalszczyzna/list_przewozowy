@@ -69,7 +69,7 @@ class MainWindow(object):
         self.tableWidget.setCornerButtonEnabled(False)
         self.tableWidget.setRowCount(0)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setColumnCount(4)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -78,8 +78,6 @@ class MainWindow(object):
         self.tableWidget.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(4, item)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(150)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(50)
@@ -97,6 +95,11 @@ class MainWindow(object):
         self.select_all_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.select_all_button.setObjectName("select_all_button")
         self.horizontalLayout_2.addWidget(self.select_all_button)
+
+        self.unselect_all_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.unselect_all_button.setObjectName("unselect_all_button")
+        self.horizontalLayout_2.addWidget(self.unselect_all_button)
+
         self.deleteAllParcelsButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.deleteAllParcelsButton.setObjectName("deleteAllParcelsButton")
         self.horizontalLayout_2.addWidget(self.deleteAllParcelsButton)
@@ -143,7 +146,6 @@ class MainWindow(object):
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
 
         self.translate_ui(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -155,15 +157,16 @@ class MainWindow(object):
         self.filePathLabel.setText(_translate("MainWindow", "Brak pliku :("))
         self.addParcelManButton.setText(_translate("MainWindow", "Dodaj ręcznie"))
         self.tableWidget.setSortingEnabled(True)
-        item = self.tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "Nr zam. Shopper"))
-        item = self.tableWidget.horizontalHeaderItem(2)
+        item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "List przewozowy"))
-        item = self.tableWidget.horizontalHeaderItem(3)
+        item = self.tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "Zam. Shoper"))
+        item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Nr dok. Optima"))
-        item = self.tableWidget.horizontalHeaderItem(4)
+        item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "Nazwa"))
         self.select_all_button.setText(_translate("MainWindow", "Zaznacz wszystkie"))
+        self.unselect_all_button.setText(_translate("MainWindow", "Odznacz wszystkie"))
         self.deleteAllParcelsButton.setText(_translate("MainWindow", "Usuń wszystkie"))
         self.deleteSelectedParcelsButton.setText(_translate("MainWindow", "Usuń zaznaczone"))
         self.sendParcelsButton.setText(_translate("MainWindow", "Wyślij..."))
@@ -173,28 +176,36 @@ class MainWindow(object):
         self.actionExit.setText(_translate("MainWindow", "Zamknij program"))
 
         self.openFileButton.clicked.connect(self.open_file_button_handler)
+        self.unselect_all_button.clicked.connect(self.unselect_all_button_handler)
+        self.select_all_button.clicked.connect(self.select_all_button_handler)
 
     def open_file_button_handler(self):
         self.open_file_name_dialog()
+
+    def unselect_all_button_handler(self):
+        self.selecting_all_rows(0)
+
+    def select_all_button_handler(self):
+        self.selecting_all_rows(1)
 
     def add_parcel(self, shoper, parcel_no, optima_invoice, name):
         row_position = self.tableWidget.rowCount()
         self.tableWidget.insertRow(row_position)
 
-        cell_widget = QtWidgets.QWidget()
-        chk_bx = QtWidgets.QCheckBox()
-        chk_bx.setCheckState(QtCore.Qt.Unchecked)
-        lay_out = QtWidgets.QHBoxLayout(cell_widget)
-        lay_out.addWidget(chk_bx)
-        lay_out.setAlignment(QtCore.Qt.AlignCenter)
-        lay_out.setContentsMargins(0, 0, 0, 0)
-        cell_widget.setLayout(lay_out)
+        parcel_no_item = QtWidgets.QTableWidgetItem(parcel_no)
+        parcel_no_item.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+        parcel_no_item.setCheckState(QtCore.Qt.Unchecked)
 
-        self.tableWidget.setCellWidget(row_position, 0, cell_widget)
+        optima_invoice = QtWidgets.QTableWidgetItem(optima_invoice)
+        optima_invoice.setFlags(QtCore.Qt.ItemIsEnabled)
+
+        name_item = QtWidgets.QTableWidgetItem(name)
+        name_item.setFlags(QtCore.Qt.ItemIsEnabled)
+
+        self.tableWidget.setItem(row_position, 0, parcel_no_item)
         self.tableWidget.setItem(row_position, 1, QtWidgets.QTableWidgetItem(shoper))
-        self.tableWidget.setItem(row_position, 2, QtWidgets.QTableWidgetItem(parcel_no))
-        self.tableWidget.setItem(row_position, 3, QtWidgets.QTableWidgetItem(optima_invoice))
-        self.tableWidget.setItem(row_position, 4, QtWidgets.QTableWidgetItem(name))
+        self.tableWidget.setItem(row_position, 2, optima_invoice)
+        self.tableWidget.setItem(row_position, 3, name_item)
 
     def populate_data(self, input_data):
         for dictionary in input_data:
@@ -242,6 +253,15 @@ class MainWindow(object):
             data = self.read_data_from_file(file_name)
             self.populate_data(data)
 
+    def selecting_all_rows(self, select):
+        row_count = self.tableWidget.rowCount()
+        for row in range(row_count):
+            item = self.tableWidget.item(row, 0)
+            if select:
+                item.setCheckState(QtCore.Qt.Checked)
+            else:
+                item.setCheckState(QtCore.Qt.Unchecked)
+
 
 if __name__ == "__main__":
     import sys
@@ -249,4 +269,7 @@ if __name__ == "__main__":
     window = QtWidgets.QMainWindow()
     ui = MainWindow(window)
     window.show()
+    file_name = '/home/damian/Pulpit/fv_test.xlsx'
+    data = ui.read_data_from_file(file_name)
+    ui.populate_data(data)
     sys.exit(app.exec_())
