@@ -24,10 +24,12 @@ class AddParcelDialog(QDialog):
 
         self.parcel_no_input = QLineEdit()
         self.parcel_no_input.setPlaceholderText("Numer listu przewozowego")
+        self.parcel_no_input.textChanged.connect(self._disable_button)
         layout.addWidget(self.parcel_no_input)
 
         self.shoper_no_input = QLineEdit()
         self.shoper_no_input.setPlaceholderText("Numer zamówienia Shoper")
+        self.shoper_no_input.textChanged.connect(self._disable_button)
         layout.addWidget(self.shoper_no_input)
 
         self.optima_no_input = QLineEdit()
@@ -38,14 +40,21 @@ class AddParcelDialog(QDialog):
         self.name.setPlaceholderText("Nazwa odbiorcy")
         layout.addWidget(self.name)
 
-        buttons = QDialogButtonBox(
+        self.buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
             Qt.Horizontal, self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        self.buttons.setDisabled(True)
 
-        layout.addWidget(buttons)
+        layout.addWidget(self.buttons)
         self.setLayout(layout)
+
+    def _disable_button(self):
+        parcel_no_len = len(self.parcel_no_input.text())
+        shoper_no_len = len(self.shoper_no_input.text())
+        if parcel_no_len > 0 and shoper_no_len > 0:
+            self.buttons.setDisabled(False)
 
     def get_parcel(self):
         return self.parcel_no_input.text()

@@ -215,7 +215,8 @@ class MainWindow(object):
 
     def add_parcel_button_handler(self):
         parcel, shoper, optima, name, result = AddParcelDialog.get_new_parcel()
-        self.add_parcel(shoper, parcel, optima, name)
+        if result:
+            self.add_parcel(shoper, parcel, optima, name)
 
     def add_parcel(self, shoper, parcel_no, optima_invoice, name):
         row_position = self.tableWidget.rowCount()
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     window = QtWidgets.QMainWindow()
     ui = MainWindow(window)
     window.show()
-    file_name = r"C:\Users\Damian\Desktop\fv_test.xlsx"
-    data = ui.read_data_from_file(file_name)
-    ui.populate_data(data)
+    # file_name = r"C:\Users\Damian\Desktop\fv_test.xlsx"
+    # data = ui.read_data_from_file(file_name)
+    # ui.populate_data(data)
     sys.exit(app.exec_())
