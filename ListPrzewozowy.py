@@ -177,6 +177,8 @@ class MainWindow(object):
         self.openFileButton.clicked.connect(self.open_file_button_handler)
         self.unselect_all_button.clicked.connect(self.unselect_all_button_handler)
         self.select_all_button.clicked.connect(self.select_all_button_handler)
+        self.deleteSelectedParcelsButton.clicked.connect(self.delete_selected_parcels_button_handler)
+        self.deleteAllParcelsButton.clicked.connect(self.delete_all_parcels_button_handler)
 
     def open_file_button_handler(self):
         self.open_file_name_dialog()
@@ -186,6 +188,29 @@ class MainWindow(object):
 
     def select_all_button_handler(self):
         self.selecting_all_rows(1)
+
+    def delete_selected_parcels_button_handler(self):
+        row_count = self.tableWidget.rowCount()
+
+        self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+
+        for row in range(row_count):
+            item = self.tableWidget.item(row, 0)
+            if item.checkState():
+                self.tableWidget.selectRow(row)
+
+        index_list = []
+        for model_index in self.tableWidget.selectionModel().selectedRows():
+            index = QtCore.QPersistentModelIndex(model_index)
+            index_list.append(index)
+
+        for index in index_list:
+            self.delete_row(index.row())
+
+        self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+
+    def delete_all_parcels_button_handler(self):
+        self.tableWidget.setRowCount(0)
 
     def add_parcel(self, shoper, parcel_no, optima_invoice, name):
         row_position = self.tableWidget.rowCount()
@@ -260,6 +285,9 @@ class MainWindow(object):
                 item.setCheckState(QtCore.Qt.Checked)
             else:
                 item.setCheckState(QtCore.Qt.Unchecked)
+
+    def delete_row(self, row):
+        self.tableWidget.removeRow(row)
 
 
 if __name__ == "__main__":
