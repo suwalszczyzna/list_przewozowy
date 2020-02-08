@@ -9,7 +9,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
-
+from AddParcelDialog import *
 from PyQt5.QtWidgets import QFileDialog
 
 
@@ -168,7 +168,7 @@ class MainWindow(object):
         self.unselect_all_button.setText(_translate("MainWindow", "Odznacz wszystkie"))
         self.deleteAllParcelsButton.setText(_translate("MainWindow", "Usuń wszystkie"))
         self.deleteSelectedParcelsButton.setText(_translate("MainWindow", "Usuń zaznaczone"))
-        self.sendParcelsButton.setText(_translate("MainWindow", "Wyślij..."))
+        self.sendParcelsButton.setText(_translate("MainWindow", "Wyślij zaznaczone..."))
         self.menuPlik.setTitle(_translate("MainWindow", "Plik"))
         self.actionOpenFile.setText(_translate("MainWindow", "Otwórz plik..."))
         self.actionSettings.setText(_translate("MainWindow", "Ustawienia"))
@@ -179,6 +179,7 @@ class MainWindow(object):
         self.select_all_button.clicked.connect(self.select_all_button_handler)
         self.deleteSelectedParcelsButton.clicked.connect(self.delete_selected_parcels_button_handler)
         self.deleteAllParcelsButton.clicked.connect(self.delete_all_parcels_button_handler)
+        self.addParcelManButton.clicked.connect(self.add_parcel_button_handler)
 
     def open_file_button_handler(self):
         self.open_file_name_dialog()
@@ -211,6 +212,10 @@ class MainWindow(object):
 
     def delete_all_parcels_button_handler(self):
         self.tableWidget.setRowCount(0)
+
+    def add_parcel_button_handler(self):
+        parcel, shoper, optima, name, result = AddParcelDialog.get_new_parcel()
+        self.add_parcel(shoper, parcel, optima, name)
 
     def add_parcel(self, shoper, parcel_no, optima_invoice, name):
         row_position = self.tableWidget.rowCount()
@@ -296,7 +301,7 @@ if __name__ == "__main__":
     window = QtWidgets.QMainWindow()
     ui = MainWindow(window)
     window.show()
-    file_name = '/home/damian/Pulpit/fv_test.xlsx'
+    file_name = r"C:\Users\Damian\Desktop\fv_test.xlsx"
     data = ui.read_data_from_file(file_name)
     ui.populate_data(data)
     sys.exit(app.exec_())
