@@ -17,6 +17,9 @@ class MainWindow(object):
     def __init__(self, MainWindow):
 
         self.filePath = ''
+        self.shoper_adress = ''
+        self.login = ''
+        self.secret = ''
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(713, 788)
@@ -69,7 +72,7 @@ class MainWindow(object):
         self.tableWidget.setCornerButtonEnabled(False)
         self.tableWidget.setRowCount(0)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -78,6 +81,8 @@ class MainWindow(object):
         self.tableWidget.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(4, item)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(150)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(50)
@@ -130,13 +135,17 @@ class MainWindow(object):
         self.menuPlik.setObjectName("menuPlik")
         MainWindow.setMenuBar(self.menubar)
         self.actionOpenFile = QtWidgets.QAction(MainWindow)
+
         self.actionOpenFile.setObjectName("actionOpenFile")
-        self.actionSettings = QtWidgets.QAction(MainWindow)
-        self.actionSettings.setObjectName("actionSettings")
+        self.actionOpenFile.setShortcut('Ctrl+O')
+        self.actionOpenFile.triggered.connect(self.open_file_name_dialog)
+
         self.actionExit = QtWidgets.QAction(MainWindow)
         self.actionExit.setObjectName("actionExit")
+        self.actionExit.setShortcut('Ctrl+Q')
+        self.actionExit.triggered.connect(qApp.quit)
+
         self.menuPlik.addAction(self.actionOpenFile)
-        self.menuPlik.addAction(self.actionSettings)
         self.menuPlik.addSeparator()
         self.menuPlik.addAction(self.actionExit)
         self.menubar.addAction(self.menuPlik.menuAction())
@@ -144,10 +153,10 @@ class MainWindow(object):
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
 
         self.translate_ui(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.dialogs = list()
 
     def translate_ui(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -164,6 +173,8 @@ class MainWindow(object):
         item.setText(_translate("MainWindow", "Nr dok. Optima"))
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "Nazwa"))
+        item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "Status"))
         self.select_all_button.setText(_translate("MainWindow", "Zaznacz wszystkie"))
         self.unselect_all_button.setText(_translate("MainWindow", "Odznacz wszystkie"))
         self.deleteAllParcelsButton.setText(_translate("MainWindow", "Usuń wszystkie"))
@@ -171,7 +182,7 @@ class MainWindow(object):
         self.sendParcelsButton.setText(_translate("MainWindow", "Wyślij zaznaczone..."))
         self.menuPlik.setTitle(_translate("MainWindow", "Plik"))
         self.actionOpenFile.setText(_translate("MainWindow", "Otwórz plik..."))
-        self.actionSettings.setText(_translate("MainWindow", "Ustawienia"))
+
         self.actionExit.setText(_translate("MainWindow", "Zamknij program"))
 
         self.openFileButton.clicked.connect(self.open_file_button_handler)
@@ -232,10 +243,14 @@ class MainWindow(object):
         name_item = QtWidgets.QTableWidgetItem(name)
         name_item.setFlags(QtCore.Qt.ItemIsEnabled)
 
+        status_item = QtWidgets.QTableWidgetItem()
+        status_item.setFlags(QtCore.Qt.ItemIsEnabled)
+
         self.tableWidget.setItem(row_position, 0, parcel_no_item)
         self.tableWidget.setItem(row_position, 1, QtWidgets.QTableWidgetItem(shoper))
         self.tableWidget.setItem(row_position, 2, optima_invoice)
         self.tableWidget.setItem(row_position, 3, name_item)
+        self.tableWidget.setItem(row_position, 4, status_item)
 
     def populate_data(self, input_data):
         for dictionary in input_data:
