@@ -12,12 +12,15 @@ class Config:
         self.password = ''
         self.shippingID = ''
         self.default_section = 'DEFAULT'
+        self.token_section = 'TOKEN'
+        self.token_filename = 'token.ini'
+        self.config_filename = 'config.ini'
         self.config = configparser.RawConfigParser()
         # self.logger = logging.getLogger(__name__)
 
     def _load_config(self) -> bool:
         logger.info('Próba otwarcia pliku konfiguracyjnego config.ini')
-        config_result = self.config.read('config.ini')
+        config_result = self.config.read(self.config_filename)
         if config_result:
             logger.info('Znaleziono plik konfiguracyjny config.ini. Pobieram parametry...')
             self.shoper_url = self.config[self.default_section]['shoperURL']
@@ -37,9 +40,31 @@ class Config:
             'passphraze': '',
             'shippingID': '',
         }
+
+        self.config['TOKEN'] = {
+            'last_token': ''
+        }
         logger.info('Zapisuje pusty plik konfiguracyjny...')
-        with open('config.ini', 'w') as configfile:
+        with open(self.config_filename, 'w') as configfile:
             self.config.write(configfile)
+
+    def save_token(self, token):
+        logger.info('Zapisuje token w pliku konfiguracyjnym')
+        with open(self.token_filename, 'w') as tokenfile:
+            tokenfile.write(token)
+
+    def get_token_from_config(self):
+        token = ''
+
+        try:
+            with open(self.token_filename) as tokenfile:
+                token = tokenfile.readlines()
+                if token:
+                    token = token[0]
+        except FileNotFoundError as error:
+            logger.info('Plik z tokenem nie znaleziony.')
+
+        return token
 
     def load_config(self) -> str:
         result = 'OK'
