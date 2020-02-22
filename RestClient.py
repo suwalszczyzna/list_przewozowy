@@ -4,11 +4,11 @@ from requests.auth import HTTPBasicAuth
 
 
 class RestClient:
-    def __init__(self, raw_adress):
-        self.raw_adress = raw_adress
+    def __init__(self, shoper_url):
+        self.shoper_url = shoper_url
 
     def get_token(self, login, password):
-        r = requests.post('https://{}/webapi/rest/auth/'.format(self.raw_adress), auth=HTTPBasicAuth(login, password))
+        r = requests.post('https://{}/webapi/rest/auth/'.format(self.shoper_url), auth=HTTPBasicAuth(login, password))
         if r.status_code == 200:
             return json.loads(r.text)['access_token']
         else:
@@ -24,7 +24,7 @@ class RestClient:
             "shipping_id": shipping_id,
             "order_id": order_id
         }
-        r = requests.post('https://{}/webapi/rest/parcels'.format(self.raw_adress),
+        r = requests.post('https://{}/webapi/rest/parcels'.format(self.shoper_url),
                           headers=headers,
                           data=json.dumps(data)
                           )
@@ -39,7 +39,7 @@ class RestClient:
             "shipping_code": shipping_code,
             "sent": sent
         }
-        r = requests.put('https://{}/webapi/rest/parcels/{}'.format(self.raw_adress, id_parcel),
+        r = requests.put('https://{}/webapi/rest/parcels/{}'.format(self.shoper_url, id_parcel),
                          headers=headers,
                          data=json.dumps(data)
                          )
