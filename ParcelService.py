@@ -2,6 +2,7 @@ from Config import Config
 from RestClient import RestClient
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Logs import create_logger
+import InitialValues
 
 logger = create_logger(__name__)
 
@@ -40,7 +41,7 @@ class ParcelService:
                 else:
                     logger.warning('Bledy w wierszu {}'.format(row))
                     self.set_status_text(row, 'Błędna')
-                    self.colorize_row(row, (230, 0, 38))
+                    self.colorize_row(row, InitialValues.RED)
 
     def send_parcels(self):
         logger.info('Wysyłam numery przesyłek do shopera...')
@@ -59,7 +60,7 @@ class ParcelService:
                     token = self.rest_client.get_token(login, password)
                     if isinstance(token, dict):
                         self.set_status_text(row, token.get('message'))
-                        self.colorize_row(row, (230, 0, 38))
+                        self.colorize_row(row, InitialValues.RED)
                     else:
                         self.config.save_token(token)
                         id_parcel = self.rest_client.get_id_parcel(token, shipping_id, item[0])
@@ -68,20 +69,20 @@ class ParcelService:
                 is_sent = self.rest_client.set_shipping_code(token, id_parcel, item[1])
                 if is_sent == 1:
                     self.set_status_text(row, 'Wysłana do shopera')
-                    self.colorize_row(row, (0, 204, 0))
+                    self.colorize_row(row, InitialValues.GREEN)
                     logger.info('Przesyłka z wiersza: {} - wysłana poprawnie'.format(row+1))
             else:
                 if isinstance(id_parcel, dict):
                     error_message = id_parcel.get('message')
                     if error_message == "All products has been already sent":
                         self.set_status_text(row, 'Błąd: zamówienie ma już przesyłkę')
-                        self.colorize_row(row, (230, 0, 38))
+                        self.colorize_row(row, InitialValues.RED)
                         logger.info('Przesyłka z wiersza: {} - Błąd: zamówienie ma już przesyłkę'.format(row + 1))
                     elif "Wartość pola 'order_id' jest niepoprawna: Nie znaleziono wartości" in error_message:
                         self.set_status_text(row, 'Błąd: zły numer zamówienia shoper')
-                        self.colorize_row(row, (230, 0, 38))
+                        self.colorize_row(row, InitialValues.RED)
                         logger.info('Przesyłka z wiersza: {} - Błąd: zły numer zamówienia shoper'.format(row + 1))
                 else:
                     self.set_status_text(row, 'Nieznany błąd wysyłki')
-                    self.colorize_row(row, (230, 0, 38))
+                    self.colorize_row(row, InitialValues.RED)
                     logger.info('Przesyłka z wiersza: {} - inny błąd wysyłki'.format(row + 1))
