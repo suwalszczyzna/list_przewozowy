@@ -19,7 +19,7 @@ class Config:
         # self.logger = logging.getLogger(__name__)
 
     def _load_config(self) -> bool:
-        logger.info('Próba otwarcia pliku konfiguracyjnego config.ini')
+        logger.info('Otwieram plik config.ini')
         config_result = self.config.read(self.config_filename)
         if config_result:
             logger.info('Znaleziono plik konfiguracyjny config.ini. Pobieram parametry...')

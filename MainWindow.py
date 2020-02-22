@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from ParcelService import ParcelService
 from AddParcelDialog import *
 from PyQt5.QtWidgets import QFileDialog
 from Logs import create_logger
@@ -8,12 +9,15 @@ logger = create_logger(__name__)
 
 
 class MainWindow(object):
-    def __init__(self, MainWindow):
+    def __init__(self, MainWindow, config, rest_client):
 
         self.filePath = ''
         self.shoper_adress = ''
         self.login = ''
         self.secret = ''
+        self.config = config
+        self.rest_client = rest_client
+
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(713, 788)
@@ -185,6 +189,7 @@ class MainWindow(object):
         self.deleteSelectedParcelsButton.clicked.connect(self.delete_selected_parcels_button_handler)
         self.deleteAllParcelsButton.clicked.connect(self.delete_all_parcels_button_handler)
         self.addParcelManButton.clicked.connect(self.add_parcel_button_handler)
+        self.sendParcelsButton.clicked.connect(self.send_parcels_handler)
 
     def open_file_button_handler(self):
         self.open_file_name_dialog()
@@ -194,6 +199,13 @@ class MainWindow(object):
 
     def select_all_button_handler(self):
         self.selecting_all_rows(1)
+
+    def send_parcels_handler(self):
+        parcel_service = ParcelService(self.tableWidget,
+                                       self.config,
+                                       self.rest_client)
+        parcel_service.convert_data()
+        parcel_service.send_parcels()
 
     def delete_selected_parcels_button_handler(self):
         logger.info('Usuwam wybrane paczki')

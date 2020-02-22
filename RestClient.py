@@ -22,7 +22,10 @@ class RestClient:
                                                json.loads(r.text)['error'],
                                                json.loads(r.text)['error_description']
                                                ))
-            return None
+            return {
+                'status_code': r.status_code,
+                'message': json.loads(r.text)['error_description']
+            }
 
     def get_id_parcel(self, token, shipping_id, order_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded',
@@ -60,11 +63,11 @@ class RestClient:
             logger.info('{}: {} {}'.format(self.shoper_url, func_name, resp))
             return resp
         else:
-            error = error_desc = json.loads(response.text)['error']
+            error = json.loads(response.text)['error']
             error_desc = json.loads(response.text)['error_description']
             logger.warning('{}: {} ERROR: {}, {}: {}'.format(self.shoper_url, func_name,
-                                                   response.status_code,
-                                                   error, error_desc))
+                                                             response.status_code,
+                                                             error, error_desc))
             return {
                 'status_code': response.status_code,
                 'message': error_desc
